@@ -15,10 +15,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Route::get('form', [CheckoutController::class, 'form']);
 Route::post('checkout', [CheckoutController::class, 'checkout'])->middleware(['service_token']);
 Route::get('free', [CheckoutController::class, 'free'])->middleware(['service_token']);
