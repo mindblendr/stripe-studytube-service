@@ -30,8 +30,8 @@ class StripeService
                     'card'
                 ],
                 'mode' => 'payment',
-                'success_url' => env('APP_URL') . ':' . env('SERVER_PORT') . "/response/success/?apiToken=" . env('API_TOKEN') . "&session_id={CHECKOUT_SESSION_ID}",
-                'cancel_url' => env('APP_URL') . ':' . env('SERVER_PORT') . "/response/fail/?apiToken=" . env('API_TOKEN'),
+                'success_url' => env('APP_URL') . "/response/success/?apiToken=" . env('API_TOKEN') . "&session_id={CHECKOUT_SESSION_ID}",
+                'cancel_url' => env('APP_URL') . "/response/fail/?apiToken=" . env('API_TOKEN'),
                 'metadata' => [
                     'team_id' => $product->metadata->team_id,
                     'coupon' => $coupon,
