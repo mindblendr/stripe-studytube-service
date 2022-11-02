@@ -49,7 +49,7 @@ class StripeService
             $checkoutSession = $this->stripe->checkout->sessions->create($sessionData);
             return $checkoutSession;
         } catch (\Throwable $error) {
-            error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
+            error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage() . ' | ' . json_encode($sessionData));
         }
 
         return false;
