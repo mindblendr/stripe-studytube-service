@@ -23,17 +23,37 @@ class CheckoutController extends Controller
 
     public function response(Request $request, string $response)
     {
+        $data = false;
         if ($response == 'success') {
             $session = $this->stripeService->getSession($request->get('session_id'));
-            $createUserResult = $this->studyTubeService->createUser(
-                time(),
-                $session->metadata->email,
-                $session->metadata->first_name,
-                $session->metadata->last_name,
-                $session->metadata->team_id,
-            );
+            if ($session) {
+                $result = $this->studyTubeService->createUser(
+                    time(),
+                    $session->metadata->email,
+                    $session->metadata->first_name,
+                    $session->metadata->last_name,
+                    $session->metadata->team_id,
+                );
+
+                if (! $result) {
+                    $data = [
+                        'email' => $session->metadata->email,
+                        'first_name' => $session->metadata->first_name,
+                        'last_name' => $session->metadata->last_name,
+                    ];
+                }
+            }
         }
-        return view('response', ['response' => $createUserResult ?? 'Failed']);
+        if ($data) {
+            return view('response', ['data' => $data]);
+        } else {
+            return redirect('/cancelled')->withErrors(['msg' => 'Error creating user!']);
+        }
+    }
+
+    public function cancelled()
+    {
+        return view('cancelled');
     }
 
     public function checkout(Request $request)
