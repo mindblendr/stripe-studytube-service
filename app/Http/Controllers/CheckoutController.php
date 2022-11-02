@@ -113,6 +113,6 @@ class CheckoutController extends Controller
                 return redirect($checkoutSession->url);
             }
         }
-        return redirect('/cancelled')->withErrors(['msg' => 'Error creating user!']);
+        return redirect('/cancelled')->withErrors(['msg' => json_encode([$team_id, $coupon, $first_name, $last_name, $email])]);
     }
 }

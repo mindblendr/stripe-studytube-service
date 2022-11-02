@@ -62,7 +62,15 @@
         <h1>Registration Failed</h1>
         <p>Registration has been failed. Please try again</p>
         <br><br>
+        @if($errors->any())
+        <script>
+            console.log('{{$errors}}');
+        </script>
         <p><small><i>Something went wrong. Please <a href="https://academyofbrain.com">contact us</a>.</i></small></p>
+        @else
+        <p><small><i>Please <a href="https://academyofbrain.com">contact us</a> if something went wrong.</i></small></p>
+        @endif
+
     </div>
 </body>
 

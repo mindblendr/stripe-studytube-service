@@ -13,10 +13,10 @@
     <h4>{{$errors->first()}}</h4>
     @endif
     <center>
-        <form action="/checkout" method="post" enctype="multipart/form-data">
+        <form action="https://stripe-studytube-service-enqer.ondigitalocean.app/checkout" method="post" enctype="multipart/form-data">
             <input type="hidden" name="apiToken" value="{{env('SERVICE_TOKEN')}}">
-            <input type="hidden" name="team_id" value="10235">
-            <!-- <input type="hidden" name="team_id" value="10217"> -->
+            <!-- <input type="hidden" name="team_id" value="10235"> -->
+            <input type="hidden" name="team_id" value="10217"> 
             <input type="text" name="first_name" placeholder="firstname" value="Aljon"> <br>
             <input type="text" name="last_name" placeholder="lastname" value="Cruz"> <br>
             <input type="text" name="email" placeholder="email" value="cruz.aljon1990@gmail.com"> <br>
