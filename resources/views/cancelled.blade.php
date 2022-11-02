@@ -58,7 +58,7 @@
         <div style="border-radius:200px; height:200px; width:200px; background: #F8FAF5; margin:0 auto;">
             <i class="top-symbol">✘</i>
         </div>
-        <img src="{{asset('images/aob_logo.png')}}" alt="aob_logo" srcset="">
+        <img src="{{secure_asset('images/aob_logo.png')}}" alt="aob_logo" srcset="">
         <h1>Registration Failed</h1>
         <p>Registration has been failed. Please try again</p>
         <br><br>
