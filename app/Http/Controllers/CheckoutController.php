@@ -6,11 +6,18 @@ use Illuminate\Http\Request;
 use App\Services\StripeService;
 use App\Services\StudyTubeService;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
 
 class CheckoutController extends Controller
 {
     public $stripeService;
     public $studyTubeService;
+    const FIELDS = [
+        'team_id' => 'Team',
+        'first_name' => 'First Name',
+        'last_name' => 'Last Name',
+        'email' => 'Email',
+    ];
     public function __construct()
     {
         $this->stripeService = new StripeService;
@@ -77,6 +84,18 @@ class CheckoutController extends Controller
 
     public function checkout(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'team_id' => 'required',
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required',
+        ]);
+        if ($validator->fails()) {
+            $requiredFields = implode(',', array_map(function ($field) {
+                return self::FIELDS[$field];
+            }, array_keys((array) $validator->errors()->messages())));
+            return redirect('/cancelled?required=' . $requiredFields)->withErrors(['msg' => json_encode($validator->errors())]);
+        }
         extract($request->only(['team_id', 'coupon', 'first_name', 'last_name', 'email']));
         if (!$this->studyTubeService->isUserExists($email)) {
             $product = $this->stripeService->searchProductByTeamId($team_id);
