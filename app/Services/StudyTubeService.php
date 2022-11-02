@@ -33,7 +33,7 @@ class StudyTubeService
             }
             return $callStudyTubeApiResult->object();
         } catch (\Throwable $error) {
-            error_log($error->getMessage());
+            error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }
         return false;
     }
@@ -51,7 +51,7 @@ class StudyTubeService
                 return $this->addUserToTeam($createUserResult->id, $team_id);
             }
         } catch (\Throwable $error) {
-            error_log($error->getMessage());
+            error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }
         return false;
     }
@@ -62,7 +62,7 @@ class StudyTubeService
             $addUserToTeamResult = $this->callStudyTubeApi('teams/' . $team_id . '/members', 'POST', ['id' => $id,]);
             return $addUserToTeamResult;
         } catch (\Throwable $error) {
-            error_log($error->getMessage());
+            error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }
         return false;
     }
@@ -73,7 +73,7 @@ class StudyTubeService
             $getUsersResult = $this->callStudyTubeApi('users/?uid=' . $user_id);
             return count($getUsersResult) > 0;
         } catch (\Throwable $error) {
-            error_log($error->getMessage());
+            error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }
         return false;
     }
@@ -84,7 +84,7 @@ class StudyTubeService
             $getUsersResult = $this->callStudyTubeApi('users');
             return $getUsersResult;
         } catch (\Throwable $error) {
-            error_log($error->getMessage());
+            error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }
         return false;
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\StripeService;
 use App\Services\StudyTubeService;
+use Illuminate\Support\Facades\Session;
 
 class CheckoutController extends Controller
 {
@@ -18,7 +19,7 @@ class CheckoutController extends Controller
 
     public function form()
     {
-        return view('checkout');
+        return view('form');
     }
 
     public function response(Request $request, $response)
@@ -37,20 +38,36 @@ class CheckoutController extends Controller
                     );
 
                     if ($result) {
-                        $data = [
-                            'email' => $session->metadata->email,
-                            'first_name' => $session->metadata->first_name,
-                            'last_name' => $session->metadata->last_name,
-                        ];
+                        return redirect('/success');
                     }
                 }
             }
         }
+        return redirect('/cancelled')->withErrors(['msg' => 'Error creating user!']);
+    }
+
+    public function free()
+    {
+        $data = Session::get('data');
         if ($data) {
-            return view('response');
-        } else {
-            return redirect('/cancelled')->withErrors(['msg' => 'Error creating user!']);
+            $result = $this->studyTubeService->createUser(
+                $data['user_id'],
+                $data['email'],
+                $data['first_name'],
+                $data['last_name'],
+                $data['team_id'],
+            );
+
+            if ($result) {
+                return redirect('/success');
+            }
         }
+        return redirect('/cancelled');
+    }
+
+    public function success()
+    {
+        return view('success');
     }
 
     public function cancelled()
@@ -60,9 +77,19 @@ class CheckoutController extends Controller
 
     public function checkout(Request $request)
     {
-        extract($request->only(['team_id', 'coupon', 'first_name', 'last_name', 'email', 'code']));
+        extract($request->only(['team_id', 'coupon', 'first_name', 'last_name', 'email']));
         if (!$this->studyTubeService->isUserExists($email)) {
-            $checkoutSession = $this->stripeService->checkout($team_id, $coupon, $first_name, $last_name, $email, $code);
+            $product = $this->stripeService->searchProductByTeamId($team_id);
+            $price = $this->stripeService->getPrice($product->default_price);
+            if ($price && $price->unit_amount <= 0) {
+                $userData = compact('team_id', 'coupon', 'first_name', 'last_name', 'email');
+                $userData['user_id'] = $userData['email'];
+                return redirect('/free')->with([
+                    'data' => $userData,
+                    'apiToken' => $request->post('apiToken')
+                ]);
+            }
+            $checkoutSession = $this->stripeService->checkout($team_id, $coupon, $first_name, $last_name, $email);
             if ($checkoutSession) {
                 return redirect($checkoutSession->url);
             }

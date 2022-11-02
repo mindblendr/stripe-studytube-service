@@ -21,5 +21,7 @@ Route::get('/', function () {
 
 Route::get('form', [CheckoutController::class, 'form']);
 Route::post('checkout', [CheckoutController::class, 'checkout'])->middleware(['service_token']);
+Route::get('free', [CheckoutController::class, 'free'])->middleware(['service_token']);
 Route::get('response/{response}', [CheckoutController::class, 'response']);
+Route::get('success', [CheckoutController::class, 'success']);
 Route::get('cancelled', [CheckoutController::class, 'cancelled']);
