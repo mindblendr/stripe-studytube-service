@@ -58,7 +58,7 @@
         <div style="border-radius:200px; height:200px; width:200px; background: #F8FAF5; margin:0 auto;">
             <i class="top-symbol">✓</i>
         </div>
-        <img src="https://academyofbrain.com/wp-content/uploads/2020/03/181217_AOB-logo_RGB_72dpi-1024x159-1.png" alt="" srcset="">
+        <img src="{{asset('images/aob_logo.png')}}" alt="aob_logo" srcset="">
         <h1>Thank You</h1>
         <p>Kindly check your email for your account details!</p>
         <br><br>
