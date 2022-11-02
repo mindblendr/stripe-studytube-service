@@ -67,11 +67,21 @@ class StudyTubeService
         return false;
     }
 
+    public function isUserExists($user_id = null)
+    {
+        try {
+            $getUsersResult = $this->callStudyTubeApi('users/?uid=' . $user_id);
+            return count($getUsersResult) > 0;
+        } catch (\Throwable $error) {
+            error_log($error->getMessage());
+        }
+        return false;
+    }
+
     public function getUsers()
     {
         try {
             $getUsersResult = $this->callStudyTubeApi('users');
-            dd($getUsersResult);
             return $getUsersResult;
         } catch (\Throwable $error) {
             error_log($error->getMessage());

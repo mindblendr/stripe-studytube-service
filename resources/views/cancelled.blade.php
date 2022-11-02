@@ -60,9 +60,12 @@
         </div>
         <img src="https://academyofbrain.com/wp-content/uploads/2020/03/181217_AOB-logo_RGB_72dpi-1024x159-1.png" alt="" srcset="">
         <h1>Cancelled</h1>
-        <p>Payment has been cancelled. Thank you for your consideration!</p>
+        <p>Registration has been cancelled. Thank you for your consideration!</p>
         <br><br>
         @if($errors->any())
+        <script>
+            console.log('{{$errors->first()}}');
+        </script>
         <p><small><i>Something went wrong. Please <a href="https://academyofbrain.com">contact us</a>.</i></small></p>
         @else
         <p><small><i>Please <a href="https://academyofbrain.com">contact us</a> if something went wrong.</i></small></p>
