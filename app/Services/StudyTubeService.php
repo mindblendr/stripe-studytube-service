@@ -38,40 +38,49 @@ class StudyTubeService
         return false;
     }
 
-    public function createUser($user_id, $email, $first_name, $last_name, $team_id)
+    public function createUser($email, $first_name, $last_name)
     {
         try {
-            $createUserResult = $this->callStudyTubeApi('users', 'POST', [
-                'user_id' => $user_id,
+            return $this->callStudyTubeApi('users', 'POST', [
+                'user_id' => $email,
                 'email' => $email,
                 'first_name' => $first_name,
-                'last_name' => $last_name
+                'last_name' => $last_name,
+                'send_invite' => false,
             ]);
-            if ($createUserResult && $createUserResult->id) {
-                return $this->addUserToTeam($createUserResult->id, $team_id);
-            }
         } catch (\Throwable $error) {
             error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }
         return false;
     }
 
-    public function addUserToTeam($id, $team_id)
+    public function addUserToTeam($user_id, $team_id)
     {
         try {
-            $addUserToTeamResult = $this->callStudyTubeApi('teams/' . $team_id . '/members', 'POST', ['id' => $id,]);
-            return $addUserToTeamResult;
+            return $this->callStudyTubeApi('teams/' . $team_id . '/members', 'POST', ['id' => $user_id]);
         } catch (\Throwable $error) {
             error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }
         return false;
     }
 
-    public function isUserExists($user_id = null)
+    public function reinviteUser($user_id)
+    {
+        try {
+            return $this->callStudyTubeApi('users/' . $user_id . '/reinvite', 'POST');
+        } catch (\Throwable $error) {
+            error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
+        }
+        return false;
+    }
+
+    public function getUserByUID($user_id = null)
     {
         try {
             $getUsersResult = $this->callStudyTubeApi('users/?uid=' . $user_id);
-            return count($getUsersResult) > 0;
+            if ($getUsersResult && count($getUsersResult) == 1) {
+                return $getUsersResult[0];
+            }
         } catch (\Throwable $error) {
             error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }
@@ -85,6 +94,26 @@ class StudyTubeService
             return $getUsersResult;
         } catch (\Throwable $error) {
             error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
+        }
+        return false;
+    }
+
+    public function getTeam($team_id)
+    {
+        try {
+            return $this->callStudyTubeApi('teams/' . $team_id);
+        } catch (\Throwable $error) {
+            error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
+        }
+        return false;
+    }
+
+    public function isUserInTeam($team_id, $user)
+    {
+        if ($user && $user->teams) {
+            return count(array_filter($user->teams, function ($team) use ($team_id) {
+                return $team->id == $team_id;
+            })) > 0;
         }
         return false;
     }

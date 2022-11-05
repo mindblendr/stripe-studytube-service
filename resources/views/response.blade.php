@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ env('APP_NAME') }} - Cancelled</title>
+    @yield('title')
     <style>
         body {
             text-align: center;
@@ -14,7 +14,6 @@
         }
 
         h1 {
-            color: #c10000;
             font-family: "Nunito Sans", "Helvetica Neue", sans-serif;
             font-weight: 900;
             font-size: 40px;
@@ -29,8 +28,7 @@
         }
 
         i.top-symbol {
-            color: #c10000;
-            font-size: 100px;
+            font-size: 180px;
             line-height: 200px;
             margin-left: -15px;
         }
@@ -51,26 +49,20 @@
             color: #ffcc00;
         }
     </style>
+    @yield('color')
 </head>
 
 <body>
     <div class="card">
-        <div style="border-radius:200px; height:200px; width:200px; background: #F8FAF5; margin:0 auto;">
-            <i class="top-symbol">✘</i>
+        <div style="border-radius:200px; height:200px; width:200px; margin:0 auto;">
+            @yield('top-symbol')
         </div>
+        @if (env('APP_ENV') != 'local')
         <img src="{{secure_asset('images/aob_logo.png')}}" alt="aob_logo" srcset="">
-        <h1>Registration Failed</h1>
-        <p>Registration has been failed. Please try again</p>
-        <br><br>
-        @if($errors->any())
-        <script>
-            console.log('{{$errors}}');
-        </script>
-        <p><small><i>Something went wrong. Please <a href="https://academyofbrain.com">contact us</a>.</i></small></p>
         @else
-        <p><small><i>Please <a href="https://academyofbrain.com">contact us</a> if something went wrong.</i></small></p>
+        <img src="{{asset('images/aob_logo.png')}}" alt="aob_logo" srcset="">
         @endif
-
+        @yield('content')
     </div>
 </body>
 

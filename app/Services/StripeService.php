@@ -15,10 +15,10 @@ class StripeService
         return $this->stripe->products->all(['limit' => 3]);
     }
 
-    public function checkout($team_id, $coupon, $first_name, $last_name, $email)
+    public function checkout($team_id, $coupon, $email)
     {
         try {
-            $product = $this->searchProductByTeamId($team_id);
+            $product = $this->getProductByTeamId($team_id);
             $sessionData = [
                 'line_items' => [
                     [
@@ -30,13 +30,11 @@ class StripeService
                     'card'
                 ],
                 'mode' => 'payment',
-                'success_url' => env('RESPONSE_URL') . "/response/success/?apiToken=" . env('API_TOKEN') . "&session_id={CHECKOUT_SESSION_ID}",
-                'cancel_url' => env('RESPONSE_URL') . "/response/fail/?apiToken=" . env('API_TOKEN'),
+                'success_url' => env('RESPONSE_URL') . '/process/addUserToTeam/' . env('SERVICE_TOKEN') . '?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => route('response.cancelled'),
                 'metadata' => [
                     'team_id' => $product->metadata->team_id,
                     'coupon' => $coupon,
-                    'first_name' => $first_name,
-                    'last_name' => $last_name,
                     'email' => $email,
                     'user_id' => $email
                 ],
@@ -68,14 +66,16 @@ class StripeService
         return false;
     }
 
-    public function searchProductByTeamId($team_id)
+    public function getProductByTeamId($team_id)
     {
         try {
             $searchResult = $this->stripe->products->search([
                 'query' => "active:'true' AND metadata['team_id']:'$team_id'"
             ]);
 
-            return $searchResult && count($searchResult) == 1 ? $searchResult->data[0] : false;
+            if ($searchResult && count($searchResult) == 1) {
+                return $searchResult->data[0];
+            }
         } catch (\Throwable $error) {
             error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }

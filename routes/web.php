@@ -16,8 +16,18 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('form', [CheckoutController::class, 'form']);
-Route::post('checkout', [CheckoutController::class, 'checkout'])->middleware(['service_token']);
-Route::get('free', [CheckoutController::class, 'free'])->middleware(['service_token']);
-Route::get('response/{response}', [CheckoutController::class, 'response']);
-Route::get('success', [CheckoutController::class, 'success']);
-Route::get('cancelled', [CheckoutController::class, 'cancelled']);
+
+Route::prefix('/process')->group(function () {
+    Route::post('/register', [CheckoutController::class, 'register'])->middleware(['service_token', 'service_validation'])->name('process.register');
+    Route::get('/addUserToTeam/{apiToken}', [CheckoutController::class, 'addUserToTeam'])->middleware(['service_token'])->name('process.addUserToTeam');
+});
+
+Route::prefix('/response')->group(function() {
+    Route::get('/success/{emailSent?}', [CheckoutController::class, 'success'])->name('response.success');
+    Route::get('/cancelled', [CheckoutController::class, 'cancelled'])->name('response.cancelled');
+    Route::get('/registered/{emailSent?}', [CheckoutController::class, 'registered'])->name('response.registered');
+});
+
+Route::get('test', function () {
+    return route('response.cancelled');
+});
