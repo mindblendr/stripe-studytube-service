@@ -38,7 +38,7 @@ class StudyTubeService
         return false;
     }
 
-    public function createUser($email, $first_name, $last_name)
+    public function createUser($email, $first_name, $last_name, $language = 'en')
     {
         try {
             return $this->callStudyTubeApi('users', 'POST', [
@@ -46,6 +46,7 @@ class StudyTubeService
                 'email' => $email,
                 'first_name' => $first_name,
                 'last_name' => $last_name,
+                'language' => $language,
                 'send_invite' => false,
             ]);
         } catch (\Throwable $error) {
