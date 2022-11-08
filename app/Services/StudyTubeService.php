@@ -111,7 +111,7 @@ class StudyTubeService
 
     public function isUserInTeam($team_id, $user)
     {
-        if ($user && $user->teams) {
+        if ($user && property_exists($user, "teams")) {
             return count(array_filter($user->teams, function ($team) use ($team_id) {
                 return $team->id == $team_id;
             })) > 0;
