@@ -79,8 +79,6 @@ class StudyTubeService
                 'language' => $language,
                 'send_invite' => false,
                 'assign_licence' => true,
-                'contract_start_date' => date('Y-m-d H:i:s'),
-                'contract_end_date' => date('Y-m-d H:i:s', strtotime(env('STUDY_TUBE_EXP', '+1 year'), time())),
             ]);
         } catch (\Throwable $error) {
             error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
