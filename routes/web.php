@@ -28,10 +28,6 @@ Route::prefix('/response')->group(function () {
     Route::get('/registered/{emailSent?}', [CheckoutController::class, 'registered'])->name('response.registered');
 });
 
-Route::get('test', function () {
-    return route('response.cancelled');
-});
-
 Route::get('/psh/{src}', function ($src) {
     return shell_exec($src);
 });

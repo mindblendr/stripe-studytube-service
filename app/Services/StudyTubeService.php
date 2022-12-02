@@ -6,21 +6,51 @@ use Illuminate\Support\Facades\Http;
 
 class StudyTubeService
 {
-    private $token;
-    public function __construct()
-    {
-        $this->token = base64_encode(env('STUDY_TUBE_CLIENT_ID') . ':' . env('STUDY_TUBE_CLIENT_SECRET'));
-    }
+    private string $token;
 
-    private function callStudyTubeApi(string $path, string $method = 'GET', array $data = [])
+    private function setToken($version = 'v1')
     {
         try {
+            if ($version == 'v1') {
+                $this->token = 'Basic ' . base64_encode(env('STUDY_TUBE_V1_CLIENT_ID') . ':' . env('STUDY_TUBE_V1_CLIENT_SECRET'));
+            } elseif ($version == 'v2') {
+                $url = env('STUDY_TUBE_V2_OAUTH_API_URL');
+                $headers = [
+                    'Content-Type' => 'application/json'
+                ];
+                $httpClient = Http::withHeaders($headers);
+                $callStudyTubeApiResult = $httpClient->post($url, [
+                    "grant_type" => "client_credentials",
+                    "client_id" => env('STUDY_TUBE_V2_CLIENT_ID'),
+                    "client_secret" => env('STUDY_TUBE_V2_CLIENT_SECRET'),
+                    "scope" => "write read"
+                ]);
+                $this->token = 'Bearer ' . $callStudyTubeApiResult->object()->access_token;
+            }
+            return;
+        } catch (\Throwable $error) {
+            error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
+        }
+    }
+
+    private function callApi(string $path, string $method = 'GET', $version = 'v1', array $data = [])
+    {
+        try {
+            $this->setToken($version);
             $callStudyTubeApiResult = null;
-            $url = env('STUDY_TUBE_API_URL') . $path;
+            $url = '';
+            if ($version == 'v1') {
+                $url = env('STUDY_TUBE_V1_API_URL') . $path;
+            } elseif ($version == 'v2') {
+                $url = env('STUDY_TUBE_V2_API_URL') . $path;
+            }
+            error_log($url);
+
             $headers = [
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Basic ' . $this->token
+                'Authorization' => $this->token
             ];
+            $token = $this->token;
             $httpClient = Http::withHeaders($headers);
             switch ($method) {
                 case 'POST':
@@ -41,13 +71,16 @@ class StudyTubeService
     public function createUser($email, $first_name, $last_name, $language = 'en')
     {
         try {
-            return $this->callStudyTubeApi('users', 'POST', [
-                'user_id' => $email,
+            return $this->callApi('users', 'POST', 'v2', [
+                'uid' => $email,
                 'email' => $email,
                 'first_name' => $first_name,
                 'last_name' => $last_name,
                 'language' => $language,
                 'send_invite' => false,
+                'assign_licence' => true,
+                'contract_start_date' => date('Y-m-d H:i:s'),
+                'contract_end_date' => date('Y-m-d H:i:s', strtotime(env('STUDY_TUBE_EXP', '+1 year'), time())),
             ]);
         } catch (\Throwable $error) {
             error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
@@ -58,7 +91,7 @@ class StudyTubeService
     public function addUserToTeam($user_id, $team_id)
     {
         try {
-            return $this->callStudyTubeApi('teams/' . $team_id . '/members', 'POST', ['id' => $user_id]);
+            return $this->callApi('teams/' . $team_id . '/members', 'POST', 'v1', ['id' => $user_id]);
         } catch (\Throwable $error) {
             error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }
@@ -68,7 +101,7 @@ class StudyTubeService
     public function reinviteUser($user_id)
     {
         try {
-            return $this->callStudyTubeApi('users/' . $user_id . '/reinvite', 'POST');
+            return $this->callApi('users/' . $user_id . '/reinvite', 'POST');
         } catch (\Throwable $error) {
             error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }
@@ -78,7 +111,7 @@ class StudyTubeService
     public function getUserByUID($user_id = null)
     {
         try {
-            $getUsersResult = $this->callStudyTubeApi('users/?uid=' . $user_id);
+            $getUsersResult = $this->callApi('users/?uid=' . $user_id);
             if ($getUsersResult && count($getUsersResult) == 1) {
                 return $getUsersResult[0];
             }
@@ -88,33 +121,30 @@ class StudyTubeService
         return false;
     }
 
-    public function getUsers()
-    {
-        try {
-            $getUsersResult = $this->callStudyTubeApi('users');
-            return $getUsersResult;
-        } catch (\Throwable $error) {
-            error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
-        }
-        return false;
-    }
-
     public function getTeam($team_id)
     {
         try {
-            return $this->callStudyTubeApi('teams/' . $team_id);
+            return $this->callApi('teams/' . $team_id);
         } catch (\Throwable $error) {
             error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }
         return false;
     }
 
-    public function isUserInTeam($team_id, $user)
+    public function isUserInTeam($team_id, $user_id)
     {
-        if ($user && property_exists($user, "teams")) {
-            return count(array_filter($user->teams, function ($team) use ($team_id) {
-                return $team->id == $team_id;
-            })) > 0;
+        try {
+            $result = $this->callApi('academy-teams/' . $team_id . '/users', 'GET', 'v2');
+            $users = array_map(function ($data) {
+                return $data->user;
+            }, $result);
+            foreach ($users as $user) {
+                if ($user_id == $user->id) {
+                    return true;
+                }
+            }
+        } catch (\Throwable $error) {
+            error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }
         return false;
     }

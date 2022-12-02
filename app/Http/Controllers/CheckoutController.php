@@ -60,7 +60,7 @@ class CheckoutController extends Controller
         }
 
         // User already in the team
-        if ($this->studyTubeService->isUserInTeam($team_id, $user)) {
+        if ($this->studyTubeService->isUserInTeam($team_id, $user->id)) {
             return redirect()->route('response.registered')->with('error', 'User already in team!');
         }
 
@@ -85,7 +85,7 @@ class CheckoutController extends Controller
 
             return redirect($checkoutSession->url);
         } else {
-            return redirect(env('RESPONSE_URL') . '/process/addUserToTeam/' . env('SERVICE_TOKEN', md5(time())))->with('data', ['apiToken' => env('SERVICE_TOKEN', md5(time())), 'user_id' => $user->user_id, 'team_id' => $teamProduct->metadata->team_id]);
+            return redirect(env('RESPONSE_URL') . '/process/addUserToTeam/' . env('SERVICE_TOKEN', md5(time())))->with('data', ['apiToken' => env('SERVICE_TOKEN', md5(time())), 'user_id' => $user->uid, 'team_id' => $teamProduct->metadata->team_id]);
         }
     }
 
@@ -95,12 +95,13 @@ class CheckoutController extends Controller
             if ($request->has('session_id')) {
                 $session_id = $request->get('session_id');
                 $session = $this->stripeService->getSession($session_id);
+
                 if (!$session) {
                     return redirect()->route('response.cancelled')->with('error', 'Invalid session!');
                 }
                 $user_id = $session->metadata->user_id ?? null;
                 $team_id = $session->metadata->team_id ?? null;
-            } else if (Session::has('data')) {
+            } elseif (Session::has('data')) {
                 $withData = Session::get('data') ?? [];
                 extract($withData);
             }
@@ -111,7 +112,7 @@ class CheckoutController extends Controller
                     return redirect()->route('response.cancelled')->with('error', 'Invalid user!');
                 }
 
-                if ($this->studyTubeService->isUserInTeam($team_id, $user)) {
+                if ($this->studyTubeService->isUserInTeam($team_id, $user->id)) {
                     return redirect()->route('response.cancelled')->with('error', 'User already in team!');
                 }
 

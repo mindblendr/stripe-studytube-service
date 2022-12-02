@@ -39,13 +39,12 @@ class StripeService
                     'user_id' => $email
                 ],
                 ];
-                if (strlen($coupon) > 0) {
-                    $sessionData['discounts'] = [
-                        ['coupon' => $coupon]
-                    ];
-                }
-            $checkoutSession = $this->stripe->checkout->sessions->create($sessionData);
-            return $checkoutSession;
+            if (strlen($coupon) > 0) {
+                $sessionData['discounts'] = [
+                    ['coupon' => $coupon]
+                ];
+            }
+            return $this->stripe->checkout->sessions->create($sessionData);
         } catch (\Throwable $error) {
             error_log(__METHOD__ . ' - Line ' . $error->getLine() . ': ' . $error->getMessage());
         }
@@ -84,7 +83,7 @@ class StripeService
     }
 
     public function getSession($sessionId)
-    {      
+    {
         try {
             return $this->stripe->checkout->sessions->retrieve($sessionId);
         } catch (\Throwable $error) {
