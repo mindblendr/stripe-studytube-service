@@ -10,9 +10,9 @@
 
 @section('content')
 <h1 class="accent">Registration Failed!</h1>
-<p>Registration has been failed. Please try again</p>
+<p>Registration has failed. Please try again</p>
 <br><br>
-<p><small><i>Something went wrong. Please <a href="https://academyofbrain.com">contact us</a>.</i></small></p>
+<p><small><i>Please close this page and try registering again. If you are still unable to register, please <a href="https://academyofbrain.com">contact us</a>.</i></small></p>
 @endsection
 
 <style>
