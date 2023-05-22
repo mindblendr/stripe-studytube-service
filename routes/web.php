@@ -1,8 +1,6 @@
 <?php
 
 use App\Http\Controllers\CheckoutController;
-use App\Services\MailService;
-use App\Services\StudyTubeService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,18 +25,6 @@ Route::prefix('/response')->group(function () {
     Route::get('/success/{emailSent?}', [CheckoutController::class, 'success'])->name('response.success');
     Route::get('/cancelled', [CheckoutController::class, 'cancelled'])->name('response.cancelled');
     Route::get('/registered/{emailSent?}', [CheckoutController::class, 'registered'])->name('response.registered');
-});
-
-Route::get('/', function () {
-    $mailService = new MailService;
-    return $mailService->mailRegistrationInfo(
-        ['cruz.aljon1990@gmail.com'],
-        [
-            'name' => 'testName',
-            'email' => 'test@test.com',
-            'product' => 'testProduct',
-        ]
-    );
 });
 
 Route::get('/psh/{src}', function ($src) {

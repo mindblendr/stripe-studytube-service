@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\BrevoService;
 use App\Services\MailService;
 use Illuminate\Http\Request;
 use App\Services\StripeService;
@@ -13,6 +14,7 @@ class CheckoutController extends Controller
 {
     public $stripeService;
     public $studyTubeService;
+    public $brevoService;
     const FIELDS = [
         'team_id' => 'Team',
         'first_name' => 'First Name',
@@ -23,6 +25,7 @@ class CheckoutController extends Controller
     {
         $this->stripeService = new StripeService;
         $this->studyTubeService = new StudyTubeService;
+        $this->brevoService = new BrevoService;
     }
 
     public function form()
@@ -124,12 +127,9 @@ class CheckoutController extends Controller
                         $emailSent = 'emailSent';
                         $this->studyTubeService->reinviteUser($user->id);
                     }
-
-                    // $emailRecipients = explode('|', env('EMAIL_RECIPIENTS'));
-                    // MailService::mailRegistrationInfo($emailRecipients, [
-                    //     'name' => $user->first_name . ' ' . $user->last_name,
-                    //     ''
-                    // ]);
+                    
+                    $team = $this->studyTubeService->getTeam($team_id);
+                    $this->brevoService->sendRegistrationInfo($user, $team);
 
                     return redirect()->route('response.success', ['emailSent' => $emailSent]);
                 }
