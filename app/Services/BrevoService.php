@@ -80,7 +80,7 @@ class BrevoService
                                 </tr>
                                 <tr>
                                     <td><label>Team:</label></td>
-                                    <td>[{$team->id}] {$team->name}</td>
+                                    <td>{$team->id}</td>
                                 </tr>
                             </tbody>
                         </table>
