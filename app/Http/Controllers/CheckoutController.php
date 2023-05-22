@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\MailService;
 use Illuminate\Http\Request;
 use App\Services\StripeService;
 use App\Services\StudyTubeService;
@@ -123,6 +124,13 @@ class CheckoutController extends Controller
                         $emailSent = 'emailSent';
                         $this->studyTubeService->reinviteUser($user->id);
                     }
+
+                    // $emailRecipients = explode('|', env('EMAIL_RECIPIENTS'));
+                    // MailService::mailRegistrationInfo($emailRecipients, [
+                    //     'name' => $user->first_name . ' ' . $user->last_name,
+                    //     ''
+                    // ]);
+
                     return redirect()->route('response.success', ['emailSent' => $emailSent]);
                 }
             }
