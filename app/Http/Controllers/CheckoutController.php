@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Services\BrevoService;
-use App\Services\MailService;
 use Illuminate\Http\Request;
 use App\Services\StripeService;
 use App\Services\StudyTubeService;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Validator;
 
 class CheckoutController extends Controller
 {
